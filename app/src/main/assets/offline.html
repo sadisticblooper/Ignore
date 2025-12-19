@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>You're Offline | Connection Lost</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --dark-bg-gradient: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            --primary-color: #4f46e5;
+            --secondary-color: #7c3aed;
+            --text-color: #1f2937;
+            --text-light: #f9fafb;
+            --shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            --glow: 0 0 30px rgba(79, 70, 229, 0.3);
+        }
+
+        [data-theme="dark"] {
+            --bg-gradient: var(--dark-bg-gradient);
+            --primary-color: #818cf8;
+            --secondary-color: #a78bfa;
+            --text-color: #f9fafb;
+            --text-light: #f9fafb;
+            --shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            --glow: 0 0 40px rgba(129, 140, 248, 0.4);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.3s ease;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-gradient);
+            color: var(--text-color);
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+            padding: 40px;
+            background-color: rgba(255, 255, 255, 0.93);
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        [data-theme="dark"] .container {
+            background-color: rgba(17, 24, 39, 0.93);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 20px 20px;
+            animation: float 20s linear infinite;
+            z-index: -1;
+        }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            100% { transform: translate(-20px, -20px) rotate(360deg); }
+        }
+
+        .offline-icon {
+            font-size: 5rem;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+            filter: drop-shadow(0 5px 15px rgba(79, 70, 229, 0.3));
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            color: var(--text-color);
+            opacity: 0.8;
+            line-height: 1.6;
+        }
+
+        .connection-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 20px;
+            background: rgba(239, 68, 68, 0.1);
+            border-radius: 50px;
+            margin-bottom: 30px;
+            color: #ef4444;
+            font-weight: 600;
+        }
+
+        .connection-status i {
+            animation: blink 1.5s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .tips {
+            background: rgba(79, 70, 229, 0.05);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: left;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .tips h3 {
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .tips ul {
+            list-style: none;
+            padding-left: 10px;
+        }
+
+        .tips li {
+            margin-bottom: 8px;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .tips li i {
+            color: var(--primary-color);
+            margin-top: 3px;
+            flex-shrink: 0;
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 14px 28px;
+            border-radius: 12px;
+            border: none;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            min-width: 160px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--glow);
+        }
+
+        .btn-secondary {
+            background: rgba(79, 70, 229, 0.1);
+            color: var(--primary-color);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(79, 70, 229, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(79, 70, 229, 0.1);
+            border: none;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--primary-color);
+            font-size: 1.2rem;
+        }
+
+        .theme-toggle:hover {
+            background: rgba(79, 70, 229, 0.2);
+        }
+
+        .signal-animation {
+            position: relative;
+            height: 60px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .signal-bar {
+            width: 10px;
+            background: linear-gradient(to top, var(--primary-color), var(--secondary-color));
+            border-radius: 4px 4px 0 0;
+            animation: signalWave 1.5s ease-in-out infinite;
+        }
+
+        .signal-bar:nth-child(1) { height: 15px; animation-delay: 0.1s; }
+        .signal-bar:nth-child(2) { height: 30px; animation-delay: 0.2s; }
+        .signal-bar:nth-child(3) { height: 45px; animation-delay: 0.3s; }
+        .signal-bar:nth-child(4) { height: 60px; animation-delay: 0.4s; }
+        .signal-bar:nth-child(5) { height: 45px; animation-delay: 0.5s; }
+        .signal-bar:nth-child(6) { height: 30px; animation-delay: 0.6s; }
+        .signal-bar:nth-child(7) { height: 15px; animation-delay: 0.7s; }
+
+        @keyframes signalWave {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        .footer {
+            margin-top: 30px;
+            font-size: 0.9rem;
+            color: var(--text-color);
+            opacity: 0.7;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 30px 20px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <button class="theme-toggle" id="themeToggle">
+            <i class="fas fa-moon"></i>
+        </button>
+        
+        <div class="signal-animation">
+            <div class="signal-bar"></div>
+            <div class="signal-bar"></div>
+            <div class="signal-bar"></div>
+            <div class="signal-bar"></div>
+            <div class="signal-bar"></div>
+            <div class="signal-bar"></div>
+            <div class="signal-bar"></div>
+        </div>
+        
+        <div class="offline-icon">
+            <i class="fas fa-wifi-slash"></i>
+        </div>
+        
+        <h1>Connection Lost</h1>
+        
+        <div class="connection-status">
+            <i class="fas fa-exclamation-circle"></i>
+            <span>You're currently offline</span>
+        </div>
+        
+        <p class="subtitle">
+            The internet connection appears to be unavailable. <br>
+            Don't worry, you can still try these steps to get back online.
+        </p>
+        
+        <div class="tips">
+            <h3><i class="fas fa-lightbulb"></i> Quick Fixes</h3>
+            <ul>
+                <li><i class="fas fa-check-circle"></i> Check your Wi-Fi or mobile data connection</li>
+                <li><i class="fas fa-check-circle"></i> Restart your router or modem</li>
+                <li><i class="fas fa-check-circle"></i> Disable and re-enable airplane mode</li>
+                <li><i class="fas fa-check-circle"></i> Move to an area with better signal</li>
+            </ul>
+        </div>
+        
+        <div class="action-buttons">
+            <button class="btn btn-primary" id="retryButton">
+                <i class="fas fa-sync-alt"></i>
+                Try Again
+            </button>
+            
+            <button class="btn btn-secondary" id="diagnoseButton">
+                <i class="fas fa-tools"></i>
+                Diagnose
+            </button>
+        </div>
+        
+        <div class="footer">
+            <p>Last checked: <span id="lastChecked">Just now</span></p>
+            <p>Attempting to reconnect automatically...</p>
+        </div>
+    </div>
+
+    <script>
+        // Theme toggle functionality
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = themeToggle.querySelector('i');
+        
+        function setTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('theme', theme);
+            
+            if (theme === 'dark') {
+                themeIcon.className = 'fas fa-sun';
+            } else {
+                themeIcon.className = 'fas fa-moon';
+            }
+        }
+        
+        // Check for saved theme or prefer-color-scheme
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            setTheme(savedTheme);
+        } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            setTheme('dark');
+        } else {
+            setTheme('light');
+        }
+        
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            setTheme(currentTheme === 'dark' ? 'light' : 'dark');
+        });
+        
+        // Update last checked time
+        const lastCheckedEl = document.getElementById('lastChecked');
+        function updateLastChecked() {
+            const now = new Date();
+            lastCheckedEl.textContent = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        }
+        
+        // Retry connection
+        const retryButton = document.getElementById('retryButton');
+        retryButton.addEventListener('click', function() {
+            retryButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Retrying...';
+            retryButton.disabled = true;
+            
+            // Simulate checking connection
+            setTimeout(() => {
+                if (navigator.onLine) {
+                    // If online, reload the page
+                    window.location.reload();
+                } else {
+                    // If still offline, show error
+                    retryButton.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Still Offline';
+                    setTimeout(() => {
+                        retryButton.innerHTML = '<i class="fas fa-sync-alt"></i> Try Again';
+                        retryButton.disabled = false;
+                    }, 2000);
+                }
+            }, 1500);
+            
+            updateLastChecked();
+        });
+        
+        // Diagnose button
+        const diagnoseButton = document.getElementById('diagnoseButton');
+        diagnoseButton.addEventListener('click', function() {
+            const status = navigator.onLine ? 'Online' : 'Offline';
+            const message = `Network Status: ${status}\n\nPossible issues:\n1. Network cable unplugged\n2. Router/modem needs restart\n3. ISP outage in your area\n4. Firewall blocking connection`;
+            alert(message);
+        });
+        
+        // Auto-check connection every 10 seconds
+        setInterval(() => {
+            if (navigator.onLine) {
+                window.location.reload();
+            }
+        }, 10000);
+        
+        // Listen for online/offline events
+        window.addEventListener('online', () => {
+            window.location.reload();
+        });
+        
+        // Initialize last checked time
+        updateLastChecked();
+        
+        // Add some dynamic text for fun
+        const subtitles = [
+            "The internet connection appears to be unavailable.",
+            "Looks like you've hit a connectivity roadblock.",
+            "Can't seem to reach the servers right now.",
+            "The digital highway seems to be under construction."
+        ];
+        
+        const subtitleEl = document.querySelector('.subtitle');
+        let subtitleIndex = 0;
+        
+        // Change subtitle every 8 seconds
+        setInterval(() => {
+            subtitleIndex = (subtitleIndex + 1) % subtitles.length;
+            subtitleEl.textContent = subtitles[subtitleIndex];
+        }, 8000);
+    </script>
+</body>
+</html>
